@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Sign in to UserHub - Enterprise User Management System" />
+  <title>Login — UserHub Admin Portal</title>
+  
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div class="auth-ambient-bg"></div>
+
+    <!-- Theme Toggle Floating Button -->
+    <div style="position: absolute; top: 1.5rem; right: 1.5rem; z-index: 20;">
+      <button class="theme-toggle-btn" title="Toggle Light/Dark Theme" aria-label="Toggle Theme">
+        <i class="fa-solid fa-moon"></i>
+      </button>
+    </div>
+
+    <!-- Auth Card -->
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-brand">
+          <div class="brand-icon">
+            <i class="fa-solid fa-users-gear"></i>
+          </div>
+          <span>UserHub</span>
+        </div>
+        <h1 class="auth-title">Welcome Back</h1>
+        <p class="auth-subtitle">Sign in to access your administrative dashboard</p>
+      </div>
+
+      <!-- Quick Demo Credentials Box -->
+      <div class="demo-credentials-box">
+        <div class="demo-credentials-header">
+          <span><i class="fa-solid fa-bolt"></i> Demo Credentials</span>
+          <button type="button" id="fillDemoAdminBtn" class="demo-quick-btn">
+            Auto-fill Admin
+          </button>
+        </div>
+        <div><strong>Admin:</strong> admin@userhub.com | Admin@123456</div>
+        <div><strong>Manager:</strong> manager@userhub.com | Manager@123456</div>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="auth-form" novalidate>
+        <!-- Email Input -->
+        <div class="form-group">
+          <label class="form-label" for="loginEmail">Email Address <span class="required">*</span></label>
+          <div style="position: relative;">
+            <input
+              type="email"
+              id="loginEmail"
+              class="form-control"
+              placeholder="admin@userhub.com"
+              required
+              autocomplete="email"
+            />
+          </div>
+          <span class="form-error-msg" id="emailError">Please enter a valid email address.</span>
+        </div>
+
+        <!-- Password Input -->
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label class="form-label" for="loginPassword">Password <span class="required">*</span></label>
+          </div>
+          <div class="password-input-wrapper">
+            <input
+              type="password"
+              id="loginPassword"
+              class="form-control"
+              placeholder="••••••••"
+              required
+              autocomplete="current-password"
+            />
+            <button type="button" class="password-toggle-btn" id="togglePasswordBtn" aria-label="Toggle password visibility">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+          <span class="form-error-msg" id="passwordError">Password must be at least 6 characters long.</span>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="submitLoginBtn" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; padding: 0.75rem;">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          <span id="btnText">Sign In to UserHub</span>
+        </button>
+
+        <!-- API Base URL Info & Config Link -->
+        <div style="text-align: center; font-size: 0.78rem; color: var(--text-muted); margin-top: 0.5rem;">
+          API: <span id="currentApiDisplay" style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">http://127.0.0.1:5000/api</span>
+          <a href="#" id="openApiConfigBtn" style="margin-left: 0.5rem; text-decoration: underline;">Change</a>
+        </div>
+      </form>
+
+      <div class="auth-footer">
+        Don't have an account?
+        <a href="register.html" style="font-weight: 700;">Create an account</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- API URL Configuration Modal -->
+  <div class="modal-overlay" id="apiConfigModal">
+    <div class="modal-container" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <i class="fa-solid fa-server" style="color: var(--primary);"></i>
+          API Server URL
+        </h3>
+        <button type="button" class="modal-close-btn" id="closeApiModalBtn">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; color: var(--text-muted);">
+          Configure the backend REST API endpoint. When testing locally use localhost. When connecting to deployed backend, enter your Render URL.
+        </p>
+        <div class="form-group">
+          <label class="form-label" for="customApiInput">API Base URL</label>
+          <input
+            type="url"
+            id="customApiInput"
+            class="form-control"
+            placeholder="http://localhost:5000/api"
+          />
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button type="button" class="btn btn-secondary btn-sm" id="setLocalApiBtn">
+            Reset to Local (Port 5000)
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" id="setRenderDemoBtn">
+            Sample Render URL
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="cancelApiModalBtn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveApiModalBtn">Save API URL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Redirect if already authenticated
+      window.UserHubAuth.redirectIfLoggedIn();
+
+      // Display active API URL
+      const currentApiDisplay = document.getElementById('currentApiDisplay');
+      currentApiDisplay.textContent = window.UserHubAPI.getApiBaseUrl();
+
+      // Check URL query parameters for session expiration alert
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('expired') === 'true') {
+        window.UserHubAuth.showToast('Session Expired', 'Your session has expired. Please log in again.', 'warning');
+      }
+
+      // Password visibility toggle
+      const passwordInput = document.getElementById('loginPassword');
+      const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+      togglePasswordBtn.addEventListener('click', () => {
+        const isPassword = passwordInput.type === 'password';
+        passwordInput.type = isPassword ? 'text' : 'password';
+        togglePasswordBtn.innerHTML = isPassword
+          ? '<i class="fa-regular fa-eye-slash"></i>'
+          : '<i class="fa-regular fa-eye"></i>';
+      });
+
+      // Quick Demo Auto-fill
+      document.getElementById('fillDemoAdminBtn').addEventListener('click', () => {
+        document.getElementById('loginEmail').value = 'admin@userhub.com';
+        document.getElementById('loginPassword').value = 'Admin@123456';
+        window.UserHubAuth.showToast('Demo Loaded', 'Admin credentials loaded into form.', 'info', 2000);
+      });
+
+      // API Settings Modal Handlers
+      const apiModal = document.getElementById('apiConfigModal');
+      const customApiInput = document.getElementById('customApiInput');
+
+      document.getElementById('openApiConfigBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        customApiInput.value = window.UserHubAPI.getApiBaseUrl();
+        apiModal.classList.add('active');
+      });
+
+      const closeApiModal = () => apiModal.classList.remove('active');
+      document.getElementById('closeApiModalBtn').addEventListener('click', closeApiModal);
+      document.getElementById('cancelApiModalBtn').addEventListener('click', closeApiModal);
+
+      document.getElementById('setLocalApiBtn').addEventListener('click', () => {
+        customApiInput.value = 'http://127.0.0.1:5000/api';
+      });
+
+      document.getElementById('setRenderDemoBtn').addEventListener('click', () => {
+        customApiInput.value = 'https://userhub-api.onrender.com/api';
+      });
+
+      document.getElementById('saveApiModalBtn').addEventListener('click', () => {
+        const newUrl = customApiInput.value.trim();
+        window.UserHubAPI.setApiBaseUrl(newUrl);
+        currentApiDisplay.textContent = window.UserHubAPI.getApiBaseUrl();
+        closeApiModal();
+        window.UserHubAuth.showToast('Configuration Saved', 'API Endpoint updated successfully.', 'success');
+      });
+
+      // Form Submission
+      const loginForm = document.getElementById('loginForm');
+      const submitBtn = document.getElementById('submitLoginBtn');
+      const btnText = document.getElementById('btnText');
+      const emailInput = document.getElementById('loginEmail');
+      const emailError = document.getElementById('emailError');
+      const passwordError = document.getElementById('passwordError');
+
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        // Reset errors
+        emailInput.classList.remove('error');
+        passwordInput.classList.remove('error');
+        emailError.classList.remove('visible');
+        passwordError.classList.remove('visible');
+
+        let isValid = true;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email || !emailRegex.test(email)) {
+          emailInput.classList.add('error');
+          emailError.classList.add('visible');
+          isValid = false;
+        }
+
+        if (!password || password.length < 6) {
+          passwordInput.classList.add('error');
+          passwordError.classList.add('visible');
+          isValid = false;
+        }
+
+        if (!isValid) return;
+
+        // Loading state
+        submitBtn.disabled = true;
+        btnText.textContent = 'Authenticating...';
+        const origIcon = submitBtn.querySelector('i');
+        origIcon.className = 'fa-solid fa-spinner fa-spin';
+
+        try {
+          const response = await window.UserHubAPI.AuthAPI.login(email, password);
+
+          if (response.success && response.token) {
+            localStorage.setItem('userhub_token', response.token);
+            localStorage.setItem('userhub_user', JSON.stringify(response.user));
+
+            window.UserHubAuth.showToast(
+              'Login Successful',
+              `Welcome back, ${response.user.name}! Redirecting...`,
+              'success',
+              2000
+            );
+
+            setTimeout(() => {
+              window.location.href = 'index.html';
+            }, 1000);
+          } else {
+            throw new Error(response.message || 'Login failed.');
+          }
+        } catch (err) {
+          console.error('Login error:', err);
+          window.UserHubAuth.showToast(
+            'Authentication Error',
+            err.message || 'Invalid credentials or server connection failed.',
+            'error',
+            5000
+          );
+        } finally {
+          submitBtn.disabled = false;
+          btnText.textContent = 'Sign In to UserHub';
+          origIcon.className = 'fa-solid fa-arrow-right-to-bracket';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
